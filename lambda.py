@@ -6,8 +6,10 @@ import boto3
 db_name = ':memory:'  # In-memory SQLite DB
 
 # Real S3 Settings
-s3_bucket = 'your-real-s3-bucket'
-s3_key = 'test-data.json'
+s3 = boto3.client('s3', region_name='us-east-1')
+
+s3_bucket = os.environ['S3_BUCKET']
+
 
 def setup_fake_db():
     """Creates a fake SQLite database and populates it with test data."""
@@ -30,7 +32,14 @@ def lambda_handler(event, context):
         # Convert query results to JSON
         json_data = json.dumps([{"id": row[0], "name": row[1]} for row in result])
 
+        # get the number of objects in the S3 bucket
+        response = s3.list_objects_v2(Bucket=s3_bucket)
+        num_objects = response.get('KeyCount', 0)
+
         # Upload to Real S3
+
+        s3_key = f'data_{num_objects + 1}.json'
+
         s3 = boto3.client('s3', region_name='us-east-1')
         s3.put_object(Bucket=s3_bucket, Key=s3_key, Body=json_data)
         
