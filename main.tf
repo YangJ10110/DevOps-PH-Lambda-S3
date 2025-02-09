@@ -1,10 +1,12 @@
 terraform {
-    required_providers {
-        aws = {
-        source  = "hashicorp/aws"
-        version = "~> 3.0"
-        }
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.70"
     }
+  }
 }
 
 provider "aws" {
@@ -12,34 +14,39 @@ provider "aws" {
 }
 
 # lambda module
-module "lambda" {
-    source = "https://github.com/devkinetics/devops-lambda/tree/lambda-mod-test"
-    function_name = "lambda-mod-test"
-    handler       = "index.lambda_handler"
-    lambda_enabled = false
-    runtime = "python3.12"
-    create_role = true
-    source_path = "lambda.zip" # Path to the lambda function code
-    environment = {
+
+resource "aws_lambda_function" "lambda" {
+    function_name = "rag-lambda"
+    filename = "lambda.zip"
+    handler       = "lambda_function.lambda_handler"
+    runtime       = "python3.12"
+    role          = aws_iam_role.iam_for_lambda.arn
+
+    environment {
         variables = {
-            S3_BUCKET_NAME = module.rag-s3-bd.bucket_name
-            S3_ARN = module.rag-s3-bd.bucket_arn
+            S3_BUCKET = module.s3_bucket.s3_bucket_id
         }
     }
-
 }
 
-output "s3_bucket_name" {
-    value = module.s3_bucket.bucket_name
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
 }
 
-output "s3_bucket_arn" {
-    value = module.s3_bucket.bucket_arn
+resource "aws_iam_role" "iam_for_lambda" {
+  name               = "iam_for_lambda"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
-#s3 key
-output "s3_bucket_key" {
-    value = module.s3_bucket.bucket_key
-}
+
 
 
 # s3 bucket using community module
@@ -49,7 +56,7 @@ module "s3_bucket" {
 
   bucket = "rag-s3-bd"
   acl    = "private"
-
+    
   control_object_ownership = true
   object_ownership         = "ObjectWriter"
 
