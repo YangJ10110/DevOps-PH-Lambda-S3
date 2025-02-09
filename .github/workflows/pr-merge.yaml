@@ -14,9 +14,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Zip Python
-        run: |
-          zip -r python.zip python
+      - name: zip the python file lambda.py
+        run: zip lambda.zip lambda.py
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
@@ -30,9 +29,14 @@ jobs:
       - name: Initialize Terraform
         run: terraform init
         working-directory: ./
+      
+      - name: Configure AWS credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
 
       - name: Apply Terraform
-        run: terraform apply -auto-approve 
+        run: terraform apply -auto-approve
         working-directory: ./
 
   
