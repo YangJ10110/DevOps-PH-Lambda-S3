@@ -46,6 +46,6 @@ def lambda_handler(event, context):
     finally:
         connection.close()
 
-# test
+# test 2
 # Run the test
 print(lambda_handler({}, {}))
