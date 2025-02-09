@@ -14,6 +14,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> $GITHUB_ENV
+
       - name: zip the python file lambda.py
         run: zip lambda.zip lambda.py
       - name: Setup Terraform
@@ -26,20 +35,14 @@ jobs:
       - name: Change directory to Terraform workspace
         run: cd ./
 
+      - name: Force Lambda Update
+        run: terraform taint aws_lambda_function.lambda || true
+        working-directory: ./
+
       - name: Initialize Terraform
         run: terraform init
         working-directory: ./
       
-      - name: Configure AWS credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> $GITHUB_ENV
-          echo ${{ secrets.AWS_ACCESS_KEY_ID }}
-          echo ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
       - name: Apply Terraform
         run: terraform apply -auto-approve
         working-directory: ./
