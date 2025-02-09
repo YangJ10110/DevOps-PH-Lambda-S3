@@ -35,6 +35,10 @@ jobs:
       - name: Change directory to Terraform workspace
         run: cd ./
 
+      - name: Force Lambda Update
+        run: terraform taint aws_lambda_function.lambda || true
+        working-directory: ./
+
       - name: Initialize Terraform
         run: terraform init
         working-directory: ./

@@ -34,9 +34,11 @@ def lambda_handler(event, context):
 
         # Upload to Real S3
         s3 = boto3.client('s3', region_name='us-east-1')
-        # get number of objects in the bucket
+        
+        # Get number of objects in the bucket
         s3_objects = s3.list_objects_v2(Bucket=s3_bucket)
-        num_objects = s3_objects['KeyCount', 0]
+        num_objects = s3_objects.get('KeyCount', 0)  # FIXED ERROR
+
         s3_key = f'output_{num_objects + 1}.json'
 
         s3.put_object(Bucket=s3_bucket, Key=s3_key, Body=json_data)
@@ -49,12 +51,6 @@ def lambda_handler(event, context):
     finally:
         connection.close()
 
-# test 2
-# Run the test
-# test 3
-# test 4
-# test 5
-# test 6
-# test 7
-
+# Test Lambda function
+# test 1
 print(lambda_handler({}, {}))
