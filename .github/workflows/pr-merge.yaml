@@ -32,7 +32,7 @@ jobs:
         working-directory: ./
 
       - name: Apply Terraform
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve 
         working-directory: ./
 
   
