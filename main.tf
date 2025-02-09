@@ -10,19 +10,43 @@ terraform {
     
   }
 
-  backend "s3" {
-    bucket = "rag-terraform-state"
-    key    = "terraform.tfstate"
-    region = "us-east-1"
-    
+    backend "s3" {
+        bucket = "rag-terraform-state-09ae6u"
+        key    = "terraform.tfstate"
+        region = "us-west-1"
+    }
+}
+
+# terraform init -migrate-state
+
+provider "aws" {
+    region = "us-west-1"
+}
+
+# create a s3 backend
+
+resource "aws_s3_bucket" "terraform_state-lambda-s3-rag" {
+  bucket = "rag-terraform-state-${random_string.suffix.result}"
+  tags = {
+    Name = "terraform_state"
   }
 }
 
-provider "aws" {
-    region = "us-east-1"
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
+  upper   = false
 }
 
-# lambda module
+
+resource "aws_s3_bucket_versioning" "versioning_state" {
+  bucket = aws_s3_bucket.terraform_state-lambda-s3-rag.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+#lambda module
 
 
 resource "aws_lambda_function" "lambda" {
