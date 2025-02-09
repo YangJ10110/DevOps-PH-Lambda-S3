@@ -14,9 +14,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Zip Python
-        run: |
-          zip -r python.zip python
+      - name: zip the python file lambda.py
+        run: zip lambda.zip lambda.py
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 

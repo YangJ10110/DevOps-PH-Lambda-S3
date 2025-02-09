@@ -19,7 +19,7 @@ module "lambda" {
     lambda_enabled = false
     runtime = "python3.12"
     create_role = true
-    source_path = "lambda" # Path to the lambda function code
+    source_path = "lambda.zip" # Path to the lambda function code
     environment = {
         variables = {
             S3_BUCKET_NAME = module.rag-s3-bd.bucket_name
