@@ -1,4 +1,4 @@
-name: Test-Branch-if-Merge
+name: Python Lambda Deploy
 
 on :
   push:
