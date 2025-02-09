@@ -1,0 +1,38 @@
+name: Python Lambda Deploy
+
+on :
+  push:
+    paths:
+      - 'lambda.py'
+    branches:
+      - test
+jobs:
+
+#if merged to main do zip the python
+  lambda-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Zip Python
+        run: |
+          zip -r python.zip python
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      # checking the directory
+      - name: Check directory
+        run: ls -la
+
+      - name: Change directory to Terraform workspace
+        run: cd ./
+
+      - name: Initialize Terraform
+        run: terraform init
+        working-directory: ./
+
+      - name: Apply Terraform
+        run: terraform apply -auto-approve
+        working-directory: ./
+
+  
