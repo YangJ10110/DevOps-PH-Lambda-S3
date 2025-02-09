@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "aws" {
-    region = "us-west-2"
+    region = "us-east-1"
 }
 
 # lambda module
@@ -22,9 +22,8 @@ module "lambda" {
     source_path = "lambda" # Path to the lambda function code
     environment = {
         variables = {
-            key1 = module.rag-s3-bd.bucket_name
-            key2 = module.rag-s3-bd.bucket_arn
-            key3 = module.rag-s3-bd.bucket_key
+            S3_BUCKET_NAME = module.rag-s3-bd.bucket_name
+            S3_ARN = module.rag-s3-bd.bucket_arn
         }
     }
 
