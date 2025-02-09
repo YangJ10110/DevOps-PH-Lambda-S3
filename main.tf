@@ -9,6 +9,13 @@ terraform {
 
     
   }
+
+  backend "s3" {
+    bucket = "rag-terraform-state"
+    key    = "terraform.tfstate"
+    region = "us-east-1"
+    
+  }
 }
 
 provider "aws" {
@@ -16,6 +23,7 @@ provider "aws" {
 }
 
 # lambda module
+
 
 resource "aws_lambda_function" "lambda" {
     function_name = "rag-lambda"
@@ -32,11 +40,11 @@ resource "aws_lambda_function" "lambda" {
     }
 }
 
-data "archive_file" "lambda" {
-  type        = "zip"
-  source_file = "lambda.py"
-  output_path = "lambda.zip"
-}
+# data "archive_file" "lambda" {
+#   type        = "zip"
+#   source_file = "lambda.py"
+#   output_path = "lambda.zip"
+# }
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
