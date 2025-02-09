@@ -6,9 +6,7 @@ import os
 # Fake Database Settings (Store in /tmp/ for reuse)
 db_path = "/tmp/fake_db.sqlite"
 
-# Real S3 Settings
-s3_bucket = 'your-real-s3-bucket'
-s3_key = 'test-data.json'
+s3_bucket = os.environ.get('S3_BUCKET')
 
 def setup_fake_db():
     """Creates a fake SQLite database if it does not exist."""
@@ -36,6 +34,11 @@ def lambda_handler(event, context):
 
         # Upload to Real S3
         s3 = boto3.client('s3', region_name='us-east-1')
+        # get number of objects in the bucket
+        s3_objects = s3.list_objects_v2(Bucket=s3_bucket)
+        num_objects = s3_objects['KeyCount', 0]
+        s3_key = f'output_{num_objects + 1}.json'
+
         s3.put_object(Bucket=s3_bucket, Key=s3_key, Body=json_data)
         
         return {'statusCode': 200, 'body': 'Data extracted and uploaded successfully'}
