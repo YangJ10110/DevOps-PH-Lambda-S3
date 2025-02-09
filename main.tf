@@ -9,13 +9,45 @@ terraform {
 
     
   }
+
+    backend "s3" {
+        bucket = "rag-terraform-state-09ae6u"
+        key    = "terraform.tfstate"
+        region = "us-west-1"
+    }
 }
+
+# terraform init -migrate-state
 
 provider "aws" {
-    region = "us-east-1"
+    region = "us-west-1"
 }
 
-# lambda module
+# create a s3 backend
+
+resource "aws_s3_bucket" "terraform_state-lambda-s3-rag" {
+  bucket = "rag-terraform-state-${random_string.suffix.result}"
+  tags = {
+    Name = "terraform_state"
+  }
+}
+
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
+  upper   = false
+}
+
+
+resource "aws_s3_bucket_versioning" "versioning_state" {
+  bucket = aws_s3_bucket.terraform_state-lambda-s3-rag.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+#lambda module
+
 
 resource "aws_lambda_function" "lambda" {
     function_name = "rag-lambda"
@@ -32,11 +64,11 @@ resource "aws_lambda_function" "lambda" {
     }
 }
 
-data "archive_file" "lambda" {
-  type        = "zip"
-  source_file = "lambda.py"
-  output_path = "lambda.zip"
-}
+# data "archive_file" "lambda" {
+#   type        = "zip"
+#   source_file = "lambda.py"
+#   output_path = "lambda.zip"
+# }
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
