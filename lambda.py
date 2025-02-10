@@ -53,4 +53,5 @@ def lambda_handler(event, context):
 
 # Test Lambda function
 # test 1
+# test 2
 print(lambda_handler({}, {}))
