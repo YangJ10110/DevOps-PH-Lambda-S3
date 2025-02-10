@@ -10,11 +10,11 @@ terraform {
     
   }
 
-    backend "s3" {
-        bucket = "rag-terraform-state-1"
-        key    = "terraform.tfstate"
-        region = "us-west-1"
-    }
+    # backend "s3" {
+    #     bucket = "rag-terraform-state-1"
+    #     key    = "terraform.tfstate"
+    #     region = "us-west-1"
+    # }
 }
 
 # terraform init -migrate-state
@@ -137,9 +137,8 @@ module "s3_bucket" {
   control_object_ownership = true
   object_ownership         = "ObjectWriter"
 
-  versioning = {
-    enabled = true
-  }
+
+  force_destroy = true
 }
 
 
